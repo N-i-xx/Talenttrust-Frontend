@@ -32,8 +32,11 @@ Props:
 - `onDispute?: () => void`
 - `onReleaseFunds?: () => void`
 - `onViewSummary?: () => void`
+- `disabledReasons?: Partial<Record<ActionKey, string>>`
+- `errorMessage?: string`
+- `isLoading?: boolean`
 
-Description: Chooses appropriate action buttons based on the current contract status.
+Description: Chooses appropriate action buttons based on the current contract status. See `docs/components/ActionPanel.md` for keyboard support, disabled-state reasons, loading, and error guidance.
 
 ## Adding a new action type
 
@@ -51,5 +54,5 @@ The contract detail page uses a responsive grid:
 ## Accessibility
 
 - Status badges use high contrast color combinations.
-- Buttons include descriptive `aria-label` attributes.
+- Buttons include descriptive `aria-label` attributes, visible focus rings, and disabled-state descriptions.
 - Section headers use semantic landmarks and visible labels.
