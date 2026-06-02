@@ -9,6 +9,8 @@ export const metadata: Metadata = {
 
 import { PreferencesProvider } from '@/lib/preferences';
 import { SettingsTrigger } from '@/components/settings/SettingsTrigger';
+import { WalletProvider } from '@/contexts/WalletContext';
+import { WalletConnectButton } from '@/components/WalletConnectButton';
 
 export default function RootLayout({
   children,
@@ -20,8 +22,20 @@ export default function RootLayout({
       <body>
         <PreferencesProvider>
           <ToastProvider>
-            {children}
-            <SettingsTrigger />
+            <WalletProvider>
+              <div className="min-h-screen bg-slate-50 flex flex-col">
+                <header className="sticky top-0 z-40 flex w-full items-center justify-between border-b border-slate-200 bg-white/80 px-6 py-4 backdrop-blur-md">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl font-bold tracking-tight text-slate-900">TalentTrust</span>
+                  </div>
+                  <WalletConnectButton />
+                </header>
+                <main className="flex-1 p-6">
+                  {children}
+                </main>
+              </div>
+              <SettingsTrigger />
+            </WalletProvider>
           </ToastProvider>
         </PreferencesProvider>
       </body>
