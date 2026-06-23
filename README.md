@@ -42,6 +42,23 @@ The app includes a global accessible toast system for transient feedback:
 - Success messages announce through a polite `aria-live` region.
 - Error messages announce through an assertive `aria-live` region.
 
+## Session safety
+
+To improve security on shared or public machines, the `WalletProvider` includes an optional idle auto-disconnect safeguard.
+
+- **Configurable Timeout**: Pass an `idleTimeout` prop (in milliseconds) to `WalletProvider` in `src/app/layout.tsx`.
+- **Activity Monitoring**: The timer resets on user activity (pointer moves, key presses, clicks, etc.).
+- **Auto-Disconnect**: Once the idle period expires, the wallet is automatically disconnected and a notification is shown.
+- **Default Behaviour**: The safeguard is disabled by default (`idleTimeout={0}`). Recommended value for production is 15 minutes (`900000` ms).
+
+Example:
+
+```tsx
+<WalletProvider idleTimeout={900000}>
+  {children}
+</WalletProvider>
+```
+
 Example:
 
 ```tsx
