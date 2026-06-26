@@ -1,6 +1,6 @@
 # Contract Detail Components
 
-This page uses a set of reusable components to present contract metadata, milestone progress, and context-aware actions.
+This page uses a set of reusable components to present contract metadata, milestone progress, and context-aware actions. The page implements loading and error states via skeleton placeholders and error messaging wired to ActionPanel.
 
 ## Components
 
@@ -37,6 +37,32 @@ Props:
 - `isLoading?: boolean`
 
 Description: Chooses appropriate action buttons based on the current contract status. See `docs/components/ActionPanel.md` for keyboard support, disabled-state reasons, loading, and error guidance.
+
+### `ContractSummarySkeleton`
+
+Description: Renders a placeholder skeleton for `ContractSummary` while contract data is loading. Uses `aria-busy="true"` and `aria-label="Loading contract summary"` for accessibility announcement.
+
+### `MilestonesListSkeleton`
+
+Description: Renders a placeholder skeleton for `MilestonesList` while milestones are loading. Uses `aria-busy="true"` and `aria-label="Loading milestones"` for accessibility announcement.
+
+## Data Resolver
+
+The `resolveContractData` function (in `src/lib/contractResolver.ts`) provides a typed, deterministic async interface for contract data. It accepts an optional config object with `simulateError` and `simulateDelay` flags for testing.
+
+```typescript
+export async function resolveContractData(
+  id: string,
+  options: ResolverOptions = {}
+): Promise<ContractData>
+```
+
+In production, replace the mock implementation with a real API call. The return type is `ContractData`, which includes all fields needed by `ContractSummary`, `MilestonesList`, and `ActionPanel`.
+
+## Loading and Error States
+
+- **Loading:** While data is resolving, skeleton placeholders display for `ContractSummary` and `MilestonesList`. `ActionPanel` receives `isLoading={true}`, which disables all buttons and announces a reason to screen readers.
+- **Error:** If data resolution fails, `ActionPanel` displays an error message with `role="alert"`. Buttons remain disabled. Components are wrapped in `SafeBoundary` to catch render errors.
 
 ## Adding a new action type
 
