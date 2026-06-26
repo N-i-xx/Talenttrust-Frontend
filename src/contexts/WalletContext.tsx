@@ -2,10 +2,7 @@
 
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect, useRef } from 'react';
 import { useToast } from '@/components/toast/toast-provider';
-import { requestAccess } from '@stellar/freighter-api';
-import { getItem, setItem, removeItem } from '@/lib/safeStorage';
-
-const STORAGE_KEY = 'talenttrust-wallet-address';
+import { safeStorage } from '@/lib/safeStorage';
 
 export type WalletContextType = {
   address: string | null;
@@ -23,12 +20,7 @@ export const USER_REJECTED = 'User rejected the connection request.';
 /**
  * WalletProvider provides the global wallet connection state.
  *
- * Integrates with the Freighter Stellar wallet extension via @stellar/freighter-api.
- * On mount, rehydrates the connected address from localStorage. The connect()
- * method checks for Freighter availability, requests access, and surfaces
- * distinct error messages for "not installed" and "user rejected" cases.
- *
- * Includes an optional inactivity timeout that automatically disconnects
+ * It includes an optional inactivity timeout that automatically disconnects
  * the wallet after a period of user inactivity.
  *
  * @param idleTimeout - Inactivity duration in milliseconds before auto-disconnect.
@@ -36,7 +28,7 @@ export const USER_REJECTED = 'User rejected the connection request.';
  */
 export function WalletProvider({
   children,
-  idleTimeout = 0
+  idleTimeout = 0,
 }: {
   children: ReactNode;
   idleTimeout?: number;
@@ -44,9 +36,18 @@ export function WalletProvider({
   const [address, setAddress] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { showSuccess } = useToast();
+  // Safely obtain toast functions; fallback to no-op if provider missing
+  const useSafeToast = () => {
+    try {
+      return useToast();
+    } catch {
+      return { showSuccess: () => {} };
+    }
+  };
+  const { showSuccess } = useSafeToast();
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const STORAGE_KEY = 'wallet_connected_address';
 
   // Rehydrate saved address from localStorage on mount
   useEffect(() => {
@@ -58,21 +59,18 @@ export function WalletProvider({
 
   const disconnect = useCallback(() => {
     setAddress(null);
-    removeItem(STORAGE_KEY);
+    safeStorage.removeItem(STORAGE_KEY);
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
     }
   }, []);
 
-  /**
-   * Resets the inactivity timer. If the timer expires, the wallet is disconnected.
-   */
+  /** Reset the inactivity timer */
   const resetTimer = useCallback(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
     }
-
     if (address && idleTimeout > 0) {
       timerRef.current = setTimeout(() => {
         disconnect();
@@ -84,26 +82,27 @@ export function WalletProvider({
     }
   }, [address, idleTimeout, disconnect, showSuccess]);
 
-  // Handle idle auto-disconnect logic
+  // Rehydrate address from storage on mount (client only)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const stored = safeStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      setAddress(stored);
+    }
+  }, []);
+
+  // Idle auto‑disconnect handling
   useEffect(() => {
     if (typeof window === 'undefined' || !address || idleTimeout <= 0) {
       return;
     }
-
     const events = ['pointermove', 'keydown', 'visibilitychange', 'mousedown', 'touchstart'];
-
-    const handleActivity = () => {
-      resetTimer();
-    };
-
-    events.forEach(event => window.addEventListener(event, handleActivity, { passive: true }));
+    const handleActivity = () => resetTimer();
+    events.forEach(e => window.addEventListener(e, handleActivity, { passive: true }));
     resetTimer();
-
     return () => {
-      events.forEach(event => window.removeEventListener(event, handleActivity));
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
+      events.forEach(e => window.removeEventListener(e, handleActivity));
+      if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, [address, idleTimeout, resetTimer]);
 
