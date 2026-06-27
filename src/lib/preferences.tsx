@@ -8,6 +8,10 @@ export type Theme = 'light' | 'dark' | 'system';
 export type AmountFormat = 'usd' | 'ngn' | 'compact';
 export type ToastDensity = 'relaxed' | 'compact';
 
+interface SafeCurrencyFormatOptions extends Intl.NumberFormatOptions {
+  locale?: string;
+}
+
 /**
  * Safely format a number as currency, falling back to USD if the provided currency code is invalid.
  */
@@ -18,21 +22,21 @@ type CurrencyFormatOptions = Intl.NumberFormatOptions & {
 function safeCurrencyFormat(
   amount: number,
   currency: string,
-  locale: string = 'en-US',
-  options: Intl.NumberFormatOptions = {}
+  options: SafeCurrencyFormatOptions = {}
 ): string {
+  const { locale, ...formatOptions } = options;
   const defaultCurrency = 'USD';
   const { locale = 'en-US', ...formatOptions } = options;
 
   try {
-    return new Intl.NumberFormat(locale, {
-      ...options,
+    return new Intl.NumberFormat(locale || 'en-US', {
+      ...formatOptions,
       style: 'currency',
       currency,
     }).format(amount);
   } catch (_e) {
-    return new Intl.NumberFormat(locale, {
-      ...options,
+    return new Intl.NumberFormat(locale || 'en-US', {
+      ...formatOptions,
       style: 'currency',
       currency: defaultCurrency,
     }).format(amount);

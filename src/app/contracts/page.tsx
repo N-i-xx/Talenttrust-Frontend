@@ -40,8 +40,6 @@ const ContractsPage: React.FC = () => {
     <main className="min-h-screen p-8">
       <h1 className="text-2xl font-bold mb-6">Contracts</h1>
 
-
-
       {!showForm && contracts.length === 0 && (
         <EmptyState
           illustration="contracts"

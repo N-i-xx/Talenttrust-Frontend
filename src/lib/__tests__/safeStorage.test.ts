@@ -22,7 +22,7 @@ describe('safeStorage', () => {
       writable: true,
       configurable: true,
     });
-    process.env.NODE_ENV = originalNodeEnv;
+    (process.env as any).NODE_ENV = originalNodeEnv;
     consoleWarnSpy.mockRestore();
   });
 
@@ -121,7 +121,7 @@ describe('safeStorage', () => {
 
   it('logs warning at most once in development and never in production', () => {
     // 1. In production, no warnings should be logged
-    process.env.NODE_ENV = 'production';
+    (process.env as any).NODE_ENV = 'production';
     
     // Simulate disabled storage
     Object.defineProperty(window, 'localStorage', {
@@ -138,7 +138,7 @@ describe('safeStorage', () => {
     });
 
     // 2. In development, warning is logged at most once
-    process.env.NODE_ENV = 'development';
+    (process.env as any).NODE_ENV = 'development';
 
     jest.isolateModules(() => {
       const { getItem: devGet } = require('../safeStorage');

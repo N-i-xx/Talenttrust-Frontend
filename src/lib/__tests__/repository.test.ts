@@ -20,9 +20,7 @@ import {
   saveMilestone,
   STORAGE_KEY,
 } from '../repository';
-import { setErrorReporter } from '../errorReporter';
-import type { Contract } from '@/components/ContractSummary';
-import type { Milestone } from '@/components/MilestonesList';
+import type { Contract, Milestone } from '@/types/domain';
 
 // ---------------------------------------------------------------------------
 // Fixtures

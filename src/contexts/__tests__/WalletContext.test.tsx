@@ -7,24 +7,36 @@ import { WalletProvider, useWallet, MOCKED_STELLAR_ADDRESS } from '../WalletCont
 import { isValidStellarAddress } from '@/lib/stellarAddress';
 import { render, act, screen } from '@testing-library/react';
 import { ToastProvider } from '@/components/toast/toast-provider';
+import { requestAccess } from '@stellar/freighter-api';
+import { resetCache } from '@/lib/safeStorage';
+
 // Ensure we get the real implementation of WalletContext, bypassing any prior mocks
 const { WalletProvider, useWallet } = jest.requireActual('@/contexts/WalletContext');
 
-jest.mock('@/lib/safeStorage', () => ({
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  resetCache: jest.fn(),
-  safeStorage: {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    removeItem: jest.fn(),
-  },
-}));
+jest.mock('@/lib/safeStorage', () => {
+  const mockGetItem = jest.fn();
+  const mockSetItem = jest.fn();
+  const mockRemoveItem = jest.fn();
+  const mockResetCache = jest.fn();
+  return {
+    getItem: mockGetItem,
+    setItem: mockSetItem,
+    removeItem: mockRemoveItem,
+    resetCache: mockResetCache,
+    safeStorage: {
+      getItem: mockGetItem,
+      setItem: mockSetItem,
+      removeItem: mockRemoveItem,
+      resetCache: mockResetCache,
+    }
+  };
+});
 
 jest.mock('@stellar/freighter-api', () => ({
-  requestAccess: jest.fn().mockResolvedValue({ address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F', error: null }),
+  requestAccess: jest.fn(),
 }));
+
+const mockRequestAccess = requestAccess as jest.Mock;
 
 const MockComponent = () => {
   const { address, connect, disconnect } = useWallet();
@@ -45,6 +57,8 @@ describe('WalletContext persistence', () => {
     jest.clearAllMocks();
     jest.useFakeTimers();
     localStorage.clear();
+    mockRequestAccess.mockReset();
+    mockRequestAccess.mockResolvedValue({ address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' });
     Object.defineProperty(window, 'freighter', {
       value: true,
       writable: true,
