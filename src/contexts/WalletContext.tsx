@@ -49,13 +49,6 @@ export function WalletProvider({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const STORAGE_KEY = 'wallet_connected_address';
 
-  // Rehydrate saved address from localStorage on mount
-  useEffect(() => {
-    const saved = getItem(STORAGE_KEY);
-    if (saved) {
-      setAddress(saved);
-    }
-  }, []);
 
   const disconnect = useCallback(() => {
     setAddress(null);
@@ -127,7 +120,8 @@ export function WalletProvider({
         throw new Error('FREIGHTER_NOT_INSTALLED');
       }
 
-      const result = await requestAccess();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const result = await (window.freighter as any).requestAccess();
 
       if (result.error) {
         throw new Error('USER_REJECTED');
@@ -138,7 +132,7 @@ export function WalletProvider({
       }
 
       setAddress(result.address);
-      setItem(STORAGE_KEY, result.address);
+      safeStorage.setItem(STORAGE_KEY, result.address);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to connect wallet';
 

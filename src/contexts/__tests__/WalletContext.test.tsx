@@ -28,14 +28,16 @@ const MockComponent = () => {
 describe('WalletContext persistence', () => {
   const { safeStorage } = require('@/lib/safeStorage');
 
+  const mockRequestAccess = jest.fn();
+
   beforeEach(() => {
     jest.clearAllMocks();
     jest.useFakeTimers();
-    resetCache();
     localStorage.clear();
     mockRequestAccess.mockReset();
+    mockRequestAccess.mockResolvedValue({ address: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F' });
     Object.defineProperty(window, 'freighter', {
-      value: true,
+      value: { requestAccess: mockRequestAccess },
       writable: true,
       configurable: true,
     });
