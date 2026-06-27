@@ -176,6 +176,7 @@ The shared utility layer now includes lightweight Stellar address helpers in [sr
 
 - `isValidStellarAddress(value)` returns `true` only for a trimmed, uppercased value that looks like a Stellar public key: it starts with `G`, is exactly 56 characters long, and uses the base32 alphabet `A-Z` and `2-7`.
 - `normalizeStellarAddress(value)` trims whitespace and uppercases the value without throwing on invalid input.
+- `truncateAddress(value, prefixLength?, suffixLength?)` in [src/lib/truncateAddress.ts](src/lib/truncateAddress.ts) securely shortens addresses (or any string) by preserving the start and end, and inserting an ellipsis. Strings shorter than or equal to `prefixLength + suffixLength + 3` are returned untouched.
 - The display truncation path uses these helpers so clearly malformed addresses are treated as ordinary strings rather than being shortened as if they were valid keys.
 
 ## Authentication form validation and accessibility
