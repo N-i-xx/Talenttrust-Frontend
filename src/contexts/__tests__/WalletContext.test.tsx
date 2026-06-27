@@ -8,11 +8,9 @@ import { resetCache } from '@/lib/safeStorage';
 const { WalletProvider, useWallet } = jest.requireActual('@/contexts/WalletContext');
 
 jest.mock('@/lib/safeStorage', () => ({
-  safeStorage: {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    removeItem: jest.fn(),
-  },
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
   resetCache: jest.fn(),
 }));
 
@@ -32,7 +30,7 @@ const MockComponent = () => {
 };
 
 describe('WalletContext persistence', () => {
-  const { safeStorage } = require('@/lib/safeStorage');
+  const safeStorage = require('@/lib/safeStorage');
   const { requestAccess: mockRequestAccess } = require('@stellar/freighter-api');
 
   beforeEach(() => {

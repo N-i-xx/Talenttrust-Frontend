@@ -8,25 +8,33 @@ export type Theme = 'light' | 'dark' | 'system';
 export type AmountFormat = 'usd' | 'ngn' | 'compact';
 export type ToastDensity = 'relaxed' | 'compact';
 
+interface FormatOptions {
+  locale?: string;
+  notation?: 'compact' | 'standard' | 'scientific' | 'engineering';
+}
+
 /**
  * Safely format a number as currency, falling back to USD if the provided currency code is invalid.
  */
 function safeCurrencyFormat(
   amount: number,
   currency: string,
-  options: Intl.NumberFormatOptions = {}
+  options: FormatOptions = {}
 ): string {
+  const { locale, notation } = options;
   const defaultCurrency = 'USD';
+  const formatOptions: Intl.NumberFormatOptions = {
+    style: 'currency',
+    currency,
+  };
+  if (notation) {
+    formatOptions.notation = notation;
+  }
   try {
-    return new Intl.NumberFormat(options.locale || 'en-US', {
-      ...options,
-      style: 'currency',
-      currency,
-    }).format(amount);
+    return new Intl.NumberFormat(locale || 'en-US', formatOptions).format(amount);
   } catch {
-    return new Intl.NumberFormat(options.locale || 'en-US', {
-      ...options,
-      style: 'currency',
+    return new Intl.NumberFormat(locale || 'en-US', {
+      ...formatOptions,
       currency: defaultCurrency,
     }).format(amount);
   }
