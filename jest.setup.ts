@@ -35,8 +35,8 @@ jest.mock('next/navigation', () => ({
 
 // Polyfill requestIdleCallback / cancelIdleCallback used by next's request-idle-callback
 if (typeof global.requestIdleCallback === 'undefined') {
-  global.requestIdleCallback = (cb: any) => setTimeout(() => cb({ timeRemaining: () => 50 }), 0);
-  global.cancelIdleCallback = (id: any) => clearTimeout(id);
+  global.requestIdleCallback = (cb: any) => setTimeout(() => cb({ timeRemaining: () => 50 }), 0) as unknown as number;
+  global.cancelIdleCallback = (id: any) => clearTimeout(id as any);
 }
 
 // Provide a simple IntersectionObserver stub so next/use-intersection does not schedule async work

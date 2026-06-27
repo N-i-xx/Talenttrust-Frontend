@@ -1,9 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
+import userEvent from '@testing-library/user-event';
 import ContractsPage from '../page';
 import * as repository from '@/lib/repository';
 import * as stellarAddress from '@/lib/stellarAddress';
+
+const STORAGE_KEY = 'talenttrust_app_data';
 
 // Mock dependencies
 jest.mock('@/lib/repository');
@@ -26,7 +29,7 @@ describe('ContractsPage', () => {
     jest.clearAllMocks();
     localStorage.clear();
     mockListContracts.mockReturnValue([]);
-    mockIsValidStellarAddress.mockImplementation((addr: string) => addr === VALID_ADDRESS);
+    mockIsValidStellarAddress.mockImplementation((addr: string | null | undefined) => addr === VALID_ADDRESS);
   });
 
   describe('Empty State', () => {

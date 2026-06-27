@@ -35,7 +35,7 @@ describe('root metadata', () => {
     });
 
     expect(metadata.openGraph?.images).toHaveLength(1);
-    expect(metadata.openGraph?.images?.[0]).toMatchObject({
+    expect((metadata.openGraph?.images as any)?.[0]).toMatchObject({
       url: '/og-preview.svg',
       width: 1200,
       height: 630,
@@ -56,8 +56,8 @@ describe('root metadata', () => {
 
   it('keeps manifest and social image paths relative so metadataBase can resolve them', () => {
     expect(metadata.manifest).toBe('/manifest.webmanifest');
-    expect(metadata.icons?.icon?.every(icon => icon.url.startsWith('/'))).toBe(true);
-    expect(metadata.openGraph?.images?.every(image => image.url.startsWith('/'))).toBe(true);
-    expect(metadata.twitter?.images?.every(image => image.startsWith('/'))).toBe(true);
+    expect(((metadata.icons as any)?.icon as any[] | undefined)?.every((icon: any) => icon.url.startsWith('/'))).toBe(true);
+    expect((metadata.openGraph?.images as any[] | undefined)?.every((image: any) => image.url.startsWith('/'))).toBe(true);
+    expect((metadata.twitter?.images as any[] | undefined)?.every((image: any) => image.startsWith('/'))).toBe(true);
   });
 });
